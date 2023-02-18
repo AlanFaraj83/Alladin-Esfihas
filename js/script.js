@@ -1,6 +1,25 @@
+let modalKey = 0
+
+
+let quantEsfihas = 1
+
+let cart =[]
+
+
+
 // funcoes auxiliares ou uteis
 const seleciona = (elemento) => document.querySelector(elemento)
 const selecionaTodos = (elemento) => document.querySelectorAll(elemento)
+
+const formatoReal = (valor) => {
+    return valor.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})
+}
+
+const formatoMonetario = (valor) => {
+    if(valor) {
+        return valor.toFixed(2)
+    }
+}
 
 const abrirModal = () => {
     seleciona('.esfihaWindowArea').style.opacity = 0
@@ -26,9 +45,10 @@ const botoesFechar = () => {
     })
 }
 
-const preencheDadosDasEsfihas = (esfihaItem, item) => {
+const preencheDadosDasEsfihas = (esfihaItem, item, index) => {
+    esfihaItem.setAttribute('data-key', index)
     esfihaItem.querySelector('.esfiha-item--img img').src = item.img
-    esfihaItem.querySelector('.esfiha-item--price').innerHTML = `R$ ${item.price.toFixed(2)}`
+    esfihaItem.querySelector('.esfiha-item--price').innerHTML = formatoReal(item.price[2])
     esfihaItem.querySelector('.esfiha-item--name').innerHTML = item.name
     esfihaItem.querySelector('.esfiha-item--desc').innerHTML = item.description
 }
@@ -38,7 +58,7 @@ const preencheDadosModal = (item) => {
     seleciona('.esfihaBig img').src = item.img
     seleciona('.esfihaInfo h1').innerHTML = item.name
     seleciona('.esfihaInfo--desc').innerHTML = item.description
-    seleciona('.esfihaInfo--actualPrice').innerHTML = `R$ ${item.price.toFixed(2)}`
+    seleciona('.esfihaInfo--actualPrice').innerHTML = formatoReal(item.price[2])
 }
 
 // MAPEAR esfihaJson para gerar lista de esfihas
