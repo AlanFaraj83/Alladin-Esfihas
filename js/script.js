@@ -3,7 +3,7 @@ let modalKey = 0
 
 let quantEsfihas = 1
 
-let cart =[]
+let cart = []
 
 
 
@@ -24,25 +24,20 @@ const formatoMonetario = (valor) => {
 const abrirModal = () => {
     seleciona('.esfihaWindowArea').style.opacity = 0
     seleciona('.esfihaWindowArea').style.display = 'flex'
-    setTimeout(() => {
-        seleciona('.esfihaWindowArea').style.opacity = 1
-    }, 150)
+    setTimeout(() => seleciona('.esfihaWindowArea').style.opacity = 1, 150)
 }
 
 const fecharModal = () => {
     seleciona('.esfihaWindowArea').style.opacity = 0
-    setTimeout(() => {
-        seleciona('.esfihaWindowArea').style.display = 'none'
-    }, 500)
+    setTimeout(() => seleciona('.esfihaWindowArea').style.display = 'none', 500)
 }
 
 const botoesFechar = () => {
     
     
     // BOTOES FECHAR MODAL
-    selecionaTodos('.esfihaInfo--cancelButton, .esfihaInfo--cancelMobileButton').forEach((item) => {
-        item.addEventListener('click', fecharModal)
-    })
+    selecionaTodos('.esfihaInfo--cancelButton, .esfihaInfo--cancelMobileButton').forEach((item) => item.addEventListener('click', fecharModal)
+    )
 }
 
 const preencheDadosDasEsfihas = (esfihaItem, item, index) => {
@@ -61,6 +56,62 @@ const preencheDadosModal = (item) => {
     seleciona('.esfihaInfo--actualPrice').innerHTML = formatoReal(item.price[2])
 }
 
+const pegarkey = (e) => {
+
+    let key = e.target.closest('.esfiha-item').getAttribute('data-key')
+    console.log('esfiha clicada' + key)
+    console.log(esfihaJson[key])
+
+    quantEsfihas = 1
+
+    modalKey = key
+
+    return key
+}
+
+const preencherTamanhos = (key) => {
+    // tira a seleção do tamanho atual e seleciona o tamanho grande
+    seleciona('.esfihaInfo--size.selected').classList.remove('selected')
+
+    selecionaTodos('.esfihaInfo--size').forEach((size, sizeIndex) => {
+
+        (sizeIndex == 2) ? size.classList.add('selected') : ''
+        size.querySelector('span').innerHTML = esfihaJson[key].sizes[sizeIndex]
+    })
+
+}
+
+const escolherTamanhoPreco = (key) => {
+    // Ações nos botões de tamanho
+    // selecionar todos os tamanhos
+    selecionaTodos('.esfihaInfo--size').forEach((size, sizeIndex) => {
+        size.addEventListener('click', (e) =>{
+
+            seleciona('.esfihaInfo--size.selected').classList.remove('selected')
+
+            size.classList.add('selected')
+
+            seleciona('.esfihaInfo--actualPrice').innerHTML = formatoReal(esfihaJson[key].price[sizeIndex])
+        })
+    })
+}
+
+const mudarQuantidade = () => {
+    // Ações nos botões + e - da janela modal
+    seleciona('.esfihaInfo--qtmais').addEventListener('click', () => {
+        quantEsfihas++
+        seleciona('.esfihaInfo--qt').innerHTML = quantEsfihas
+    })
+
+    seleciona('.esfihaInfo--qtmenos').addEventListener('click', () => {
+        if(quantEsfihas > 1) {
+            quantEsfihas--
+            seleciona('.esfihaInfo--qt').innerHTML = quantEsfihas	
+        }
+    })
+}
+
+
 // MAPEAR esfihaJson para gerar lista de esfihas
 esfihaJson.map((item, index ) => {
     //console.log(item)
@@ -69,12 +120,14 @@ esfihaJson.map((item, index ) => {
     seleciona('.esfiha-area').append(esfihaItem)
 
     // preencher os dados de cada esfiha
-    preencheDadosDasEsfihas(esfihaItem, item)
+    preencheDadosDasEsfihas(esfihaItem, item, index)
     
-    // pizza clicada
+    // esfiha clicada
     esfihaItem.querySelector('.esfiha-item a').addEventListener('click', (e) => {
         e.preventDefault()
         console.log('Clicou na esfiha')
+
+        let chave = pegarkey(e)
 
         // abrir janela modal
         
@@ -83,8 +136,16 @@ esfihaJson.map((item, index ) => {
         // preenchimento dos dados
         preencheDadosModal(item)
 
+        preencherTamanhos(chave)
+
+        seleciona('.esfihaInfo--qt').innerHTML = quantEsfihas
+
+        escolherTamanhoPreco(chave)
+
     })
 
     botoesFechar()
 
 }) // fim do MAPEAR pizzaJson para gerar lista de esfihas
+
+mudarQuantidade()
