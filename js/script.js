@@ -111,6 +111,173 @@ const mudarQuantidade = () => {
     })
 }
 
+const adicionarNoCarrinho = () => {
+    seleciona('.esfihaInfo--addButton').addEventListener('click', () => {
+        console.log('Adicionar no carrinho')
+
+        console.log("Esfiha " + modalKey)
+
+        let size = seleciona('.esfihaInfo--size.selected').getAttribute('data-key')
+        console.log("Tamanho " + size)
+
+        console.log("Quant. " + quantEsfihas)
+
+        let price = seleciona('.esfihaInfo--actualPrice').innerHTML.replace('R$&nbsp;', '')
+
+
+        let identificador = esfihaJson[modalKey].id+'t'+size
+
+        let key = cart.findIndex( (item) => item.identificador == identificador)
+        console.log(key)
+
+        if(key > -1) {
+            cart[key].qt += quantEsfihas
+        } else {
+
+            let esfiha = {
+                identificador,
+                id:esfihaJson[modalKey].id,
+                size,
+                qt: quantEsfihas,
+                price: parseFloat(price)
+                
+            }
+            cart.push(esfiha)
+            console.log(esfiha)
+            console.log('Sub total R$' + (esfiha.qt * esfiha.price).toFixed(2))
+        }
+
+        fecharModal()
+        abrirCarrinho()
+        atualizarCarrinho()
+    })
+}
+
+const abrirCarrinho = () => {
+    console.log('Qtd de itens no carrinho ' + cart.length)
+    if(cart.length > 0) {
+        //mostrar o carrinho
+        seleciona('aside').classList.add('show')
+        seleciona('header').style.display = 'flex' //mostra barra superior
+    }
+
+    //exibir aside do carrinho no modo mobile
+    seleciona('.menu-openner').addEventListener('click', () => {
+        if(cart.length > 0) {
+            seleciona('aside').classList.add('show')
+            seleciona('aside').style.left = '0'
+        }
+    })
+
+}
+
+const fecharCarrinho = () => {
+    // fechar o carrinho com o botão X no modo mobile
+    seleciona('.menu-closer').addEventListener('click', () => {
+        seleciona('aside').style.left = '100vw' // usando 100vw ele ficará fora da tela
+        seleciona('header').style.display = 'flex'
+    })
+}
+
+const atualizarCarrinho = () => {
+    // exibir número de itens no carrinho
+    seleciona('.menu-openner span').innerHTML = cart.length
+
+    // mostrar ou nao o carrinho
+    if(cart.length > 0) {
+
+        //mostrar o carrinho
+        seleciona('aside').classList.add('show')
+
+        // zerar meu .cart para não fazer insercoes duplicadas
+        seleciona('.cart').innerHTML = ''
+
+        // crie as variaveis antes do for
+        let subtotal = 0
+        let desconto = 0
+        let total    = 0
+
+        // para preencher os itens do carrinho, calcular subtotal
+        for(let i in cart) {
+            // use o find para pegar o item por id
+            let esfihaItem = esfihaJson.find((item) => item.id == cart[i].id)
+            console.log(esfihaItem)
+
+            // em cada item pegar o subtotal
+            subtotal += cart[i].price * cart[i].qt
+            //console.log(cart[i].price)
+
+            // fazer o clone, exibir na telas e depois preencher as informações
+            let cartItem = seleciona('.models .cart--item').cloneNode(true)
+            seleciona('.cart').append(cartItem)
+
+            let esfihaSizeName = cart[i].size
+            let esfihaName = `${esfihaItem.name} (${esfihaSizeName})`
+
+            // preencher as informações
+            cartItem.querySelector('img').src = esfihaItem.img
+            cartItem.querySelector('.cart--item-nome').innerHTML = esfihaName
+            cartItem.querySelector('.cart--item--qt').innerHTML = cart[i].qt
+
+            // selecionar botoes + e -
+            cartItem.querySelector('.cart--item-qtmais').addEventListener('click', () =>{
+                console.log('Clicou no botão mais')
+                // adicionar apenas a quantidade que esta neste assunto
+                cart[i].qt++
+                // atualizar a quantidade
+                atualizarCarrinho()
+            })
+
+            cartItem.querySelector('.cart--item-qtmenos').addEventListener('click', () =>{
+                console.log('clicou no botão menos')
+                if(cart[i].qt > 1) {
+                    // subtrair apenas a quantidade que esta neste assunto
+                    cart[i].qt--
+                } else {
+                    // remover se for zero
+                    cart.splice(i, 1)
+                }
+
+                (cart.length < 1) ? seleciona('header').style.display = 'flex': ''
+
+                // atualizar a quantidade
+                atualizarCarrinho()
+            })
+
+            seleciona('.cart').append(cartItem)
+
+        } // fim do for
+
+        // fora do for
+        //calcular o desconto 10% e total
+        //desconto = subtotal * 0.1
+        desconto = subtotal * 0
+        total = subtotal - desconto
+
+        // exibir na tela os resultados
+       //  selecionar o ultimo span do elemento
+       seleciona('.subtotal span:last-child').innerHTML = formatoReal(subtotal)
+       seleciona('.desconto span:last-child').innerHTML = formatoReal(desconto)
+       seleciona('.total span:last-child').innerHTML    = formatoReal(total)
+
+    } else {
+        // ocultar o carrinho
+        seleciona('aside').classList.remove('show')
+        seleciona('aside').style.left = '100vw'
+    }
+}
+
+const finalizarCompra = () => {
+    seleciona('.cart--finalizar').addEventListener('click', () => {
+        console.log('finalizar compra')
+        seleciona('aside').classList.remove('show')
+        seleciona('aside').style.left = '100vw'
+        seleciona('header').style.display = 'flex'
+    })
+}
+
+
+
 
 // MAPEAR esfihaJson para gerar lista de esfihas
 esfihaJson.map((item, index ) => {
@@ -149,3 +316,8 @@ esfihaJson.map((item, index ) => {
 }) // fim do MAPEAR pizzaJson para gerar lista de esfihas
 
 mudarQuantidade()
+
+adicionarNoCarrinho()
+atualizarCarrinho()
+fecharCarrinho()
+finalizarCompra()
