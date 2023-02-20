@@ -292,11 +292,11 @@ esfihaJson.map((item, index ) => {
     // esfiha clicada
     esfihaItem.querySelector('.esfiha-item a').addEventListener('click', (e) => {
         e.preventDefault()
-        console.log('Clicou na esfiha')
+        console.log('Clicar na esfiha')
 
         let chave = pegarkey(e)
 
-        // abrir janela modal
+        // abrir janela da modal
         
         abrirModal()
 
@@ -313,7 +313,7 @@ esfihaJson.map((item, index ) => {
 
     botoesFechar()
 
-}) // fim do MAPEAR pizzaJson para gerar lista de esfihas
+}) // Fim do MAPEAR pizzaJson para gerar lista de esfihas
 
 mudarQuantidade()
 
